@@ -3,6 +3,10 @@ var admin = require("firebase-admin");
 
 
 var serviceAccount = require("./service-account.json");
+var userAgents = require("./user-agent-list.json");
+userAgents.map(ua=>ua.pattern)
+
+//console.log(userAgents);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -23,11 +27,15 @@ var appendURL= function(url){
 
 var convertPriceFromString = function(p){
     //console.log(p);
+    p=p.replace(',','')
     return parseFloat(p.trim().match(/\d.+/)[0]);
 }
 var c = new Crawler({
     maxConnections : 10,
     // This will be called for each crawled page
+    rateLimit:0,
+    skipDuplicates:true,
+    rotateUA:true,
     callback : function (error, res, done) {
         if(error){
             console.log(error);
@@ -71,11 +79,21 @@ var c = new Crawler({
                         var origPrice=convertPriceFromString(orig)
                         var salePrice=convertPriceFromString(sale)
                         var diffPercent = (origPrice-salePrice)/origPrice*100
-                        //console.log(diffPercent,'%')
-                        if(diffPercent>300)
+
+
+                        
+                        if(diffPercent>75)
+
                         {
-                            // console.log('orig '+orig);
-                            // console.log('Sale '+sale);
+                            console.log('orig '+orig);
+                            console.log('Sale '+sale);
+                            var resultDesc = {
+                                        desc:'',
+                                        orig : orig.trim().replace('$',''),
+                                        sale : sale.trim().replace('$',''),
+                                        link:'',
+                                        imgURL:''
+                                    }
                             //console.log(priceDiv[index].parent);
                             var textwraper=priceDiv[index].parent.children;
                             var shortDesc=textwraper
@@ -85,29 +103,44 @@ var c = new Crawler({
                             {
                                 var link=shortDesc.filter(obj=> obj.name && obj.name=='a').map(l=>{
                                     
-                                    var resultURL = appendURL(l.attribs.href)
-                                    var resultDesc = {
-                                        desc:l.children && l.children[0] ? l.children[0].data : "no description",
-                                        orig : orig.trim(),
-                                        sale : sale.trim(),
-                                        url:resultURL
-                                    }
-                                    result[resultURL]=resultDesc;
-                                    var postKey=salesRef.push().key
-                                    var updates = {}
-                                    updates[postKey] = resultDesc;
-                                    salesRef.update(updates);
-                                    if(Object.keys(result).length>10)
-                                    {
-                                        console.log('reach here');
-                                        done()
-                                    }
-                                    
-                                    console.log(resultDesc,Object.keys(result).length);
+                                    resultDesc.desc=l.children && l.children[0] ? l.children[0].data.trim() : "no description"
+                                    resultDesc.link=appendURL(l.attribs.href);
+                                    //console.log(resultDesc,Object.keys(result).length);
                                 })
+                            }
+
+                            var innerWrapper = priceDiv[index].parent.parent;
+                            innerWrapper.children
+                            .filter(obj=>obj.attribs && obj.attribs.class=='fullColorOverlayOff')
+                            .map(fullColor=>{
+                                //console.log('funll')
+                                fullColor.children
+                                .filter(obj=>obj.attribs && obj.attribs.class.includes('imageLink'))
+                                .map(imgLink=>{
+                                    imgLink.children
+                                    .filter(obj=>obj.attribs && obj.attribs.id.includes('main_images_holder'))
+                                    .map(mainImg=>{
+                                        mainImg.children.filter(obj=>obj.name && obj.name=='img')
+                                        .map(img=>{
+                                            resultDesc.imgURL=img.attribs['data-src']
+                                        })
+                                    })
+                                })
+                            })
+                            result[resultDesc.link]=resultDesc;
+                            var postKey=salesRef.push().key
+                            var updates = {}
+                            updates[postKey] = resultDesc;
+                            salesRef.update(updates);
+                            if(Object.keys(result).length>10)
+                            {
+                                //console.log('reach here');
+                                done()
                             }
                             
                         }
+
+
                     }
 
                     //var colorway=priceDiv[index]
@@ -130,7 +163,7 @@ var c = new Crawler({
                         if(exclude.indexOf(finallink)==-1 && Object.keys(result).length<10)
                         {
                             c.queue(finallink);
-                            visited.push(finallink);
+                            //visited.push(finallink);
                             //console.log(finallink);
                         }
 
@@ -139,12 +172,12 @@ var c = new Crawler({
                 }
                     
             })
-      
-            //c.queue($('li a')[832].attribs.href);
         }
         done();
     }
 });
 
-// Queue just one URL, with default callback
-c.queue('https://www.macys.com');
+// entry url
+c.queue({
+    uri:'http://www1.macys.com/'
+});

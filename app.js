@@ -1,7 +1,6 @@
 var Crawler = require("crawler");
 var admin = require("firebase-admin");
 
-var admin = require("firebase-admin");
 
 var serviceAccount = require("./service-account.json");
 
@@ -71,7 +70,7 @@ var c = new Crawler({
                     {
                         var origPrice=convertPriceFromString(orig)
                         var salePrice=convertPriceFromString(sale)
-                        var diffPercent = (origPrice-salePrice)/salePrice*100
+                        var diffPercent = (origPrice-salePrice)/origPrice*100
                         //console.log(diffPercent,'%')
                         if(diffPercent>300)
                         {

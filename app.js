@@ -13,7 +13,7 @@ admin.initializeApp({
   databaseURL:  "https://monkey-deal-5cd79.firebaseio.com"
 });
 
-var salesRef=admin.database().ref('/sales');
+
 var url = require('url');
 var defaultURL='http://www1.macys.com';
 var visited =[];
@@ -45,6 +45,21 @@ var c = new Crawler({
             //a lean implementation of core jQuery designed specifically for the server
             console.log($("title").text());
             var priceDiv=$('.prices');
+            var catagory="";
+            var cata=$(".globalMastheadCategorySelected");
+            if(cata['0'])
+            {
+                cata['0'].children.filter(obj=>obj.name=='a').map(child=>{
+                    //console.log(child)
+                    child.children.map(child=>{
+                        catagory=child.data
+                    })
+                    //stop
+                })
+            }
+
+
+           
             if(priceDiv)
             {
                 priceDiv.map(index=>{
@@ -127,6 +142,16 @@ var c = new Crawler({
                                     })
                                 })
                             })
+                            var salesRef=admin.database().ref('/sales');
+                            if(catagory!="")
+                            {
+                                console.log(catagory);
+                                salesRef=salesRef.child(catagory)
+                            }
+                            else
+                            {
+                                salesRef=salesRef.child('Others')
+                            }
                             result[resultDesc.link]=resultDesc;
                             var postKey=salesRef.push().key
                             var updates = {}

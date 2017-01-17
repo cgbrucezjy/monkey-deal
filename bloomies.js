@@ -10,24 +10,27 @@ admin.initializeApp({
 var salesRef=admin.database().ref('/bloomies');
 var url = require('url');
 
-var defaultURL='http://www1.bloomingdales.com/';
+var defaultURL='http://www1.bloomingdales.com';
 var visited =[];
 var result = {};
-var exclude =['/shop/product'];
+var exclude =['/shop/product','Rug','customerservice-bloomingdales','account','creditservice','.jsp'];
 
-var threshold=70
-visited.push(defaultURL);
-
+var threshold=74
 var appendURL= function(url){
+    
     return url.includes('http') ? url : defaultURL+url;
 }
 
 var convertPriceFromString = function(p){
     //console.log(p);
+    p=p.replace(',','')
     return parseFloat(p.trim().match(/\d.+/)[0]);
 }
 var c = new Crawler({
-    maxConnections : 10,
+    maxConnections : 1,
+    rateLimit:0,
+    skipDuplicates:true,
+    rotateUA:true,
     // This will be called for each crawled page
     callback : function (error, res, done) {
         if(error){
@@ -36,11 +39,22 @@ var c = new Crawler({
             var $ = res.$;
             if(typeof($)=='function')
             {
-                console.log($("title").text());
+                var title=$("title").text();
+                console.log(title);
 
                 var priceDiv=$('.prices');
-                if(priceDiv)
+                var catagory="";
+                var cata=$(".pageHeader");
+                //console.log(cata['0'])
+                
+                if(cata['0'])
                 {
+                    console.log(cata['0'])
+                    stop
+                }
+                if(priceDiv && visited.indexOf(title)==-1)
+                {
+                    visited.push(title);
                     priceDiv.map(index=>{
                         var reg;
                         var sale;
@@ -107,12 +121,20 @@ var c = new Crawler({
                                                 //console.log(stop)
                                             })
                                         )
+                                        var filterCheck=true;
+                                        exclude.map(e=>{
+                                            if(updateData.description.includes(e))
+                                                filterCheck=false;
+                                        })
+                                        if(filterCheck)
+                                        {
+                                            console.log(updateData);
+                                            var postKey=salesRef.push().key
+                                            var updates = {}
+                                            updates[postKey] = updateData;
+                                            salesRef.update(updates);
+                                        }
 
-                                        console.log(updateData);
-                                        var postKey=salesRef.push().key
-                                        var updates = {}
-                                        updates[postKey] = updateData;
-                                        salesRef.update(updates);
                                     }
                                 }
                             })
@@ -129,17 +151,23 @@ var c = new Crawler({
                 var anchors =$('li a');
                 anchors.map(link=>{
                     //console.log(link)
-                    if(anchors[link].attribs)
+                    if(anchors[link].attribs && anchors[link].attribs.href)
                     {
-                        var finallink=appendURL(anchors[link].attribs.href=defaultURL+anchors[link].attribs.href);
-                        if(finallink.includes(defaultURL) && visited.indexOf(finallink)==-1)
+                        var finallink=appendURL(anchors[link].attribs.href);
+                        if(finallink.includes('shop/sale'))
                         {
-                            if(exclude.indexOf(finallink)==-1 && Object.keys(result).length<10)
-                            {
-                                c.queue(finallink);
-                                visited.push(finallink);
+
+                                // setTimeout(function(){
                                 //console.log(finallink);
-                            }
+                                   c.queue({
+                                        uri:finallink,
+                                        proxy:"http://127.0.0.1:5050"
+                                    })                             
+                                // }, 100+Math.random()*300)
+
+                                //visited.push(finallink);
+                                //console.log(finallink);
+                            
 
                         }
                         
@@ -155,4 +183,7 @@ var c = new Crawler({
 });
 
 // Queue just one URL, with default callback
-c.queue('http://www1.bloomingdales.com');
+c.queue({
+    uri:'http://www1.bloomingdales.com/shop/sale',
+    proxy:"http://127.0.0.1:5050"
+});

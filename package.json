@@ -11,6 +11,7 @@
   "dependencies": {
     "crawler": "^1.0.2",
     "firebase-admin": "^4.0.4",
-    "fs": "0.0.1-security"
+    "fs": "0.0.1-security",
+    "http-proxy": "^1.16.2"
   }
 }

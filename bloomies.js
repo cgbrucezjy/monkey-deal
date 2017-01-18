@@ -7,7 +7,6 @@ admin.initializeApp({
   databaseURL:  "https://monkey-deal-5cd79.firebaseio.com"
 });
 
-var salesRef=admin.database().ref('/bloomies');
 var url = require('url');
 
 var defaultURL='http://www1.bloomingdales.com';
@@ -15,7 +14,7 @@ var visited =[];
 var result = {};
 var exclude =['/shop/product','Rug','customerservice-bloomingdales','account','creditservice','.jsp'];
 
-var threshold=74
+var threshold=69
 var appendURL= function(url){
     
     return url.includes('http') ? url : defaultURL+url;
@@ -44,13 +43,13 @@ var c = new Crawler({
 
                 var priceDiv=$('.prices');
                 var catagory="";
-                var cata=$(".pageHeader");
+                var cata=$(".bcElement");
                 //console.log(cata['0'])
                 
-                if(cata['0'])
+                if(cata['1'])
                 {
-                    console.log(cata['0'])
-                    stop
+                    //console.log(cata['1'].children[0].data)
+                    catagory=cata['1'].children[0].data
                 }
                 if(priceDiv && visited.indexOf(title)==-1)
                 {
@@ -100,7 +99,7 @@ var c = new Crawler({
                                             desc.children
                                             .filter(obj=>obj.attribs && obj.attribs.id && obj.attribs && obj.attribs.id=='prodName')
                                             .map(pn=>{
-                                                updateData.description=pn.children[0].children[0].data
+                                                updateData.desc=pn.children[0].children[0].data
                                             })[0];
 
                                             
@@ -123,11 +122,21 @@ var c = new Crawler({
                                         )
                                         var filterCheck=true;
                                         exclude.map(e=>{
-                                            if(updateData.description.includes(e))
+                                            if(updateData.desc.includes(e))
                                                 filterCheck=false;
                                         })
                                         if(filterCheck)
                                         {
+                                            var salesRef=admin.database().ref('/bloomies');
+                                            if(catagory!="")
+                                            {
+                                                console.log(catagory);
+                                                salesRef=salesRef.child(catagory)
+                                            }
+                                            else
+                                            {
+                                                salesRef=salesRef.child('Others')
+                                            }
                                             console.log(updateData);
                                             var postKey=salesRef.push().key
                                             var updates = {}
@@ -183,7 +192,8 @@ var c = new Crawler({
 });
 
 // Queue just one URL, with default callback
+// node --max_old_space_size=4096 yourFile.js
 c.queue({
-    uri:'http://www1.bloomingdales.com/shop/sale',
+    uri:'http://www1.bloomingdales.com/shop/sale?id=3977&cm_sp=NAVIGATION-_-TOP_NAV-_-SALE-n-n',
     proxy:"http://127.0.0.1:5050"
 });

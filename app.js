@@ -142,26 +142,18 @@ var c = new Crawler({
                                     })
                                 })
                             })
-                            var salesRef=admin.database().ref('/sales');
+                            var salesRef=admin.database().ref('/macys');
                             if(catagory!="")
                             {
                                 console.log(catagory);
                                 salesRef=salesRef.child(catagory)
+                                result[resultDesc.link]=resultDesc;
+                                var postKey=salesRef.push().key
+                                var updates = {}
+                                updates[postKey] = resultDesc;
+                                salesRef.update(updates);
                             }
-                            else
-                            {
-                                salesRef=salesRef.child('Others')
-                            }
-                            result[resultDesc.link]=resultDesc;
-                            var postKey=salesRef.push().key
-                            var updates = {}
-                            updates[postKey] = resultDesc;
-                            salesRef.update(updates);
-                            if(Object.keys(result).length>10)
-                            {
-                                //console.log('reach here');
-                                done()
-                            }
+
                             
                         }
 

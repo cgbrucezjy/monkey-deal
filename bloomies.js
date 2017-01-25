@@ -17,7 +17,7 @@ var exclude =['/shop/product','Rug','customerservice-bloomingdales','account','c
 var threshold=69
 var appendURL= function(url){
     
-    return url.includes('http') ? url : defaultURL+url;
+    return url.includes('http') ? url+'&cm_sp=NAVIGATION-_-TOP_NAV-_-SALE-n-n' : defaultURL+url+'&cm_sp=NAVIGATION-_-TOP_NAV-_-SALE-n-n';
 }
 
 var convertPriceFromString = function(p){
@@ -39,6 +39,7 @@ var c = new Crawler({
             if(typeof($)=='function')
             {
                 var title=$("title").text();
+                console.log(res.options.uri)
                 console.log(title);
 
                 var priceDiv=$('.prices');
@@ -48,11 +49,7 @@ var c = new Crawler({
                 
                 if(cata['1'])
                 {
-                    //console.log(cata['1'].children[0].data)
                     catagory=cata['1'].children[0].data
-                }
-                if(priceDiv && visited.indexOf(title)==-1)
-                {
                     visited.push(title);
                     priceDiv.map(index=>{
                         var reg;
@@ -152,37 +149,63 @@ var c = new Crawler({
                         })
 
                     })
+                        var anchors =$('.nav_cat_sub .gn_left_nav');
+                        anchors.map(link=>{
+                            //console.log(link)
+                            if(anchors[link].attribs && anchors[link].attribs.href)
+                            {
+                                var finallink=appendURL(anchors[link].attribs.href);
+                                if(finallink.includes('shop/sale'))
+                                {
+
+                                        // setTimeout(function(){
+                                        c.queue({
+                                                uri:finallink,
+                                                proxy:"http://127.0.0.1:5050"
+                                            })                             
+                                        // }, 100+Math.random()*300)
+
+                                        //visited.push(finallink);
+                                        //console.log(finallink);
+                                    
+
+                                }
+                                
+                            }
+                                
+                        })
+
                 }
+                else
+                {
+                        var anchors =$('.gn_left_nav2_standard .gn_left_nav');
+                        anchors.map(link=>{
+                            //console.log(link)
+                            if(anchors[link].attribs && anchors[link].attribs.href)
+                            {
+                                var finallink=appendURL(anchors[link].attribs.href);
+                                if(finallink.includes('shop/sale'))
+                                {
 
+                                        // setTimeout(function(){
+                                        c.queue({
+                                                uri:finallink,
+                                                proxy:"http://127.0.0.1:5050"
+                                            })                             
+                                        // }, 100+Math.random()*300)
 
+                                        //visited.push(finallink);
+                                        //console.log(finallink);
+                                    
 
+                                }
+                                
+                            }
+                                
+                        })
+                }
                 //file all other links
-                var anchors =$('li a');
-                anchors.map(link=>{
-                    //console.log(link)
-                    if(anchors[link].attribs && anchors[link].attribs.href)
-                    {
-                        var finallink=appendURL(anchors[link].attribs.href);
-                        if(finallink.includes('shop/sale'))
-                        {
 
-                                // setTimeout(function(){
-                                //console.log(finallink);
-                                   c.queue({
-                                        uri:finallink,
-                                        proxy:"http://127.0.0.1:5050"
-                                    })                             
-                                // }, 100+Math.random()*300)
-
-                                //visited.push(finallink);
-                                //console.log(finallink);
-                            
-
-                        }
-                        
-                    }
-                        
-                })
             }
 
       
@@ -196,4 +219,9 @@ var c = new Crawler({
 c.queue({
     uri:'http://www1.bloomingdales.com/shop/sale?id=3977&cm_sp=NAVIGATION-_-TOP_NAV-_-SALE-n-n',
     proxy:"http://127.0.0.1:5050"
+});
+
+c.on('drain',function(){
+    // For example, release a connection to database.
+    console.log('done')// close connection to MySQL
 });

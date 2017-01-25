@@ -198,3 +198,8 @@ var c = new Crawler({
 c.queue({
     uri:'http://www1.macys.com/'
 });
+
+c.on('drain',function(){
+    // For example, release a connection to database.
+    console.log('done')// close connection to MySQL
+});

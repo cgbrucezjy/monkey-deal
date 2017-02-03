@@ -70,7 +70,9 @@ var callback=function(error, res, done){
                                 orig : orig,
                                 sale : sales,
                                 link:'',
-                                imgURL:''
+                                imgURL:'',
+                                dif:dif,
+                                cata:catagory
                             }
 
                             var img=priceDiv[index].parent.children.filter(obj=>obj.attribs && obj.attribs.class && obj.attribs.class=='product-image')

@@ -59,8 +59,9 @@ var callback=function(error, res, done){
                                     sale : '',
                                     link:'',
                                     imgURL:'',
-                                    gender:cata['2'].children.filter(obj=> obj.name && obj.name=='span')[0].children[0].data.trim(),
-                                    subcata:cata['4']?cata['4'].children.filter(obj=> obj.name && obj.name=='span')[0].children[0].data.trim():''
+                                    gender:cata['1'].children.filter(obj=> obj.name && obj.name=='span')[0].children[0].data.trim(),
+                                    subcata:cata['4']?cata['4'].children.filter(obj=> obj.name && obj.name=='span')[0].children[0].data.trim():'',
+                                    cata:catagory
                                 }
                         productDiv[index].
                         children

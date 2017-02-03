@@ -80,7 +80,7 @@ var c = new Crawler({
                                     var diffPercent = (reg-sale)/reg*100
                                     if(diffPercent>threshold && reg>20)
                                     {
-                                        var updateData={orig:reg,sale:sale};
+                                        var updateData={orig:reg,sale:sale,dif:diffPercent,cata:catagory};
                                         console.log(reg,sale)
                                         //get desc
                                         priceDiv[index].parent.children

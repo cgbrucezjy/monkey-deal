@@ -43,7 +43,7 @@ var c = new Crawler({
             var $ = res.$;
             // $ is Cheerio by default
             //a lean implementation of core jQuery designed specifically for the server
-            console.log($("title").text());
+            console.log($("title").text().trim());
             var priceDiv=$('.prices');
             var catagory="";
             var cata=$(".globalMastheadCategorySelected");
@@ -107,7 +107,9 @@ var c = new Crawler({
                                         orig : orig.trim().replace('$',''),
                                         sale : sale.trim().replace('$',''),
                                         link:'',
-                                        imgURL:''
+                                        imgURL:'',
+                                        dif:diffPercent,
+                                        cata:catagory
                                     }
                             //console.log(priceDiv[index].parent);
                             var textwraper=priceDiv[index].parent.children;

@@ -30,6 +30,11 @@ var convertPriceFromString = function(p){
     p=p.replace('€','')
     return parseFloat(p.trim().match(/\d.+/)[0]);
 }
+
+var genderRefine = function(g)
+{
+    return g.replace('Woman','Women').replace('Man','Men')
+}
 var callback=function(error, res, done){
         if(error){
             console.log(error);
@@ -69,7 +74,9 @@ var callback=function(error, res, done){
                                     sale : '',
                                     link:'',
                                     imgURL:'',
-                                    subcata:cata['3'].children[0].data.trim()
+                                    subcata:cata['3'].children[0].data.trim(),
+                                    gender:genderRefine(cata['1'].children[0].data.trim()),
+                                    cata:catagory
                                 }
                             filterDiv.children.filter(obj=>obj.attribs && obj.attribs.class && obj.attribs.class=='single_product_price')
                             .map(child=>{

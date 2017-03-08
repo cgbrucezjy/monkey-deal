@@ -32,7 +32,7 @@ admin.database().ref().once('value',function(snap){
         {
             var b=assignString(brandNames,f.brandName,brandNameExist)
             var d=assignString(desc,f.desc,descExist)
-      var c=assignString(catas,f.cata,catasExist)*50
+          var c=assignString(catas,f.cata,catasExist)*50
           feature=[b,d,c,f.dif,f.orig,f.sale]
           data.push(feature)
           id.push(item)

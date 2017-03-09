@@ -27,9 +27,9 @@ admin.database().ref().once('value',function(snap){
         
         if(f.brandName && f.desc && f.cata)
         {
-          var b=assignString(brandNames,f.brandName)
-          var d=assignString(desc,f.desc)
-          var c=assignString(catas,f.cata)
+          var b=assignString(brandNames,f.brandName)*100
+          var d=assignString(desc,f.desc)*100
+          var c=assignString(catas,f.cata)*100
           feature=[b,d,c,f.dif,f.orig,f.sale]
           data.push(feature)
           id.push(item)
@@ -41,7 +41,7 @@ admin.database().ref().once('value',function(snap){
   })
   var result = ml.kmeans.cluster({
       data : data,
-      k : 5,
+      k : 10,
       epochs: 100,
 
       distance : {type : 'euclidean'},

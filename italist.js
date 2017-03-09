@@ -94,7 +94,7 @@ var callback=function(error, res, done){
                             var imgDiv=productDiv[index].children.filter(obj=>obj.name && obj.name=='a')[0]    
                             resultDesc.link=appendURL(imgDiv.attribs.href)
                             var imgURL=imgDiv.children[1].attribs.style
-                            imgURL=imgURL.substring(imgURL.indexOf('url(\'')+5,imgURL.indexOf('\')'))   
+                            imgURL=imgURL.substring(imgURL.indexOf('url(\'')+5,imgURL.indexOf('\')')).replace('_mini','_medium')   
                             resultDesc.imgURL=imgURL;   
                             resultDesc.dif=dif; 
                             if(catagory!="")

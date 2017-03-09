@@ -9,10 +9,15 @@
   "author": "bruce zhang",
   "license": "MIT",
   "dependencies": {
+    "brain": "^0.7.0",
     "crawler": "^1.0.2",
     "firebase-admin": "^4.0.4",
     "fs": "0.0.1-security",
     "http-proxy": "^1.16.2",
-    "machine_learning": "^0.1.1"
+    "machine_learning": "^0.1.1",
+    "hierarchical-clustering": "^1.1.0",
+    "indico.io": "^0.10.5",
+    "indigo": "^1.0.0",
+    "redis": "^2.6.5"
   }
 }

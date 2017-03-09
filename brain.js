@@ -1,7 +1,6 @@
-"use strict"
-var admin = require("firebase-admin");
-var ml = require("machine_learning");
+var cluster = require('hierarchical-clustering');
 
+var admin = require("firebase-admin");
 var serviceAccount = require("./service-account.json");
 
 //console.log(userAgents);
@@ -30,33 +29,32 @@ admin.database().ref().once('value',function(snap){
         
         if(f.brandName && f.desc && f.cata && f.orig<10000)
         {
-
             var b=assignString(brandNames,f.brandName,brandNameExist)
             var d=assignString(desc,f.desc,descExist)
-          var c=assignString(catas,f.cata,catasExist)*50
-          feature=[b,d,c,f.dif,f.orig,f.sale]
-          data.push(feature)
-          id.push(item)
+             var c=assignString(catas,f.cata,catasExist)
+            feature=[b,d,c,f.dif,f.orig,f.sale]
+            console.log(feature)
+            data.push(feature)
+            id.push(item)
         }
         
       })
   })
 
   })
-  var result = ml.kmeans.cluster({
-      data : data,
-      k : 10,
-      epochs: 100,
+    var levels = cluster({
+        input: data,
+        distance: distance,
+        linkage: linkage,
+        minClusters: 10, // only want two clusters 
+    });
+    
+    var clusters = levels[levels.length - 1].clusters;
+    console.log(clusters);
+    // => [ [ 2 ], [ 3, 1, 0 ] ] 
+    
 
-      distance : {type : 'euclidean'},
-      init_using_data:true
-      // default : {type : 'euclidean'}
-      // {type : 'pearson'}
-      // Or you can use your own distance function
-      // distance : function(vecx, vecy) {return Math.abs(dot(vecx,vecy));}
-  });
-
-  result.clusters.map((c,i)=>{
+  clusters.map((c,i)=>{
     c.map(index=>{
       var updates={}
       updates[id[index].key]=id[index].val()
@@ -65,40 +63,23 @@ admin.database().ref().once('value',function(snap){
     })
     
   })
-
-console.log("clusters : ", result.clusters);
-console.log("means : ", result.means);
 });
+ 
+// Euclidean distance 
+function distance(a, b) {
+  var d = 0;
+  for (var i = 0; i < a.length; i++) {
+    d += Math.pow(a[i] - b[i], 2);
+  }
+  return Math.sqrt(d);
+}
+ 
+// Single-linkage clustering 
+function linkage(distances) {
+  return Math.max.apply(null, distances);
+}
+ 
 
-// function assignString(arr,s)
-// {
-//   if(arr.length==0)
-//   {
-//     arr.push(s)
-//     return 0;
-//   }
-//   var max= arr
-//       .map(b=>similarity(b,s))
-//       .reduce((prev,curr,index)=>curr>prev?curr:prev)
-//   if(max<0.5)
-//   {
-//     //add new value to the arry
-//     arr.push(s)
-//     return arr.length-1
-//   }
-//   else
-//   {
-//     //find the index in the array
-//     var index=-1;
-//     arr.map((b,i)=>{
-//       if(similarity(b,s)==max)
-//       {
-//         index=i;
-//       }
-//     })
-//     return index;
-//   }
-// }
  function assignString(arr,s,existVal)
 {
   if(arr.length==0)

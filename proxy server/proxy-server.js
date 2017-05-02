@@ -17,6 +17,7 @@ var server = http.createServer(function(req, res) {
   req['User-Agent']='google-bot';
   setTimeout(function(){
       console.log(req.url)
+      console.log(res);
     proxy.web(req, res, { target: req.url });                
   }, 100+Math.random()*300)
   

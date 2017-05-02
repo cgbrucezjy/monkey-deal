@@ -28,7 +28,10 @@ var appendURL= function(url){
 var convertPriceFromString = function(p){
     //console.log(p);
     p=p.replace(',','')
-    return parseFloat(p.trim().match(/\d.+/)[0]);
+    if(p!=null)
+        return parseFloat(p.trim().match(/\d.+/)[0]);
+    else
+        return undefined;
 }
 var c = new Crawler({
     maxConnections : 10,
@@ -65,13 +68,14 @@ var c = new Crawler({
                 priceDiv.map(index=>{
                     //console.log('price div');
                     //console.log(priceDiv[index]);
+
                     var orig=false;
                     var sale=false;
-                    priceDiv[index].children.filter(obj=>'children' in obj)
+                    priceDiv[index].children.filter(obj=>obj.attribs && obj.attribs.class && obj.attribs.class.includes("colorway-price"))
                     .map(colorway=>{
                         
                         orig=orig? orig : colorway.children.filter(obj=>'name' in obj && obj.name=='span')
-                        .filter(obj=> obj.children[0].data.includes('Orig'))
+                        .filter(obj=> !obj.children[0].data.includes('Sale'))
                         .map(tag=>{
                             //console.log('orig',tag.children[0].data.substring(tag.children[0].data.indexOf('$')))
                             return tag.children[0].data.substring(tag.children[0].data.indexOf('$'));
@@ -88,7 +92,7 @@ var c = new Crawler({
 
 
                     })
-                    //console.log(orig)
+                    console.log(orig,sale)
                     if(orig && sale)
                     {
                         var origPrice=convertPriceFromString(orig)

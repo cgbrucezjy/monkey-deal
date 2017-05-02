@@ -26,21 +26,23 @@ client.auth('brucezhang123', function (err) {
 client.on("error", function (err) {
     console.log("Error " + err);
 });
+// client.flushdb( function (err, succeeded) {
+//     console.log(succeeded); // will be true if successfull
+// });
 
-client.get("imagedes", function (err, reply) {
-        if (err) throw err;
-        console.log(reply.toString().split(',').map(m=>parseFloat(m)));
-    });
 indico.apiKey =  '66df1bd4798a7a3603a61ea1f0c4f37a';
 
 var response = function(res) { 
     client.set("imagedes", res.toString(), redis.print);
-
+    client.get("imagedes", function (err, reply) {
+        if (err) throw err;
+        console.log(reply.toString().split(',').map(m=>parseFloat(m)));
+    });
  }
 var logError = function(err) { console.log(err); }
   
 // single example
-// indico.imageFeatures("https://slimages.macysassets.com/is/image/MCY/products/5/optimized/2544415_fpx.tif?$filtersm$&wid=126&hei=154")
-//   .then(response)
-//   .catch(logError);
+indico.imageFeatures("https://slimages.macysassets.com/is/image/MCY/products/5/optimized/2544415_fpx.tif?$filtersm$&wid=126&hei=154")
+  .then(response)
+  .catch(logError);
 

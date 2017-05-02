@@ -25,13 +25,7 @@ var convertPriceFromString = function(p){
     p=p.replace(',','')
     return parseFloat(p.trim().match(/\d.+/)[0]);
 }
-var c = new Crawler({
-    maxConnections : 1,
-    rateLimit:0,
-    skipDuplicates:true,
-    rotateUA:true,
-    // This will be called for each crawled page
-    callback : function (error, res, done) {
+var callback = function (error, res, done) {
         if(error){
             console.log(error);
         }else{
@@ -160,8 +154,7 @@ var c = new Crawler({
 
                                         // setTimeout(function(){
                                         c.queue({
-                                                uri:finallink,
-                                                proxy:"http://127.0.0.1:5050"
+                                                uri:finallink
                                             })                             
                                         // }, 100+Math.random()*300)
 
@@ -189,8 +182,7 @@ var c = new Crawler({
 
                                         // setTimeout(function(){
                                         c.queue({
-                                                uri:finallink,
-                                                proxy:"http://127.0.0.1:5050"
+                                                uri:finallink
                                             })                             
                                         // }, 100+Math.random()*300)
 
@@ -212,13 +204,23 @@ var c = new Crawler({
         }
         done();
     }
+var c = new Crawler({
+    maxConnections : 1,
+    rateLimit:0,
+    skipDuplicates:true,
+    rotateUA:true,
+    // This will be called for each crawled page
+    callback : function (error, res, done) {
+        setTimeout(function(){
+            callback(error,res,done)
+        },100+Math.random()*300)
+    }
 });
 
 // Queue just one URL, with default callback
 // node --max_old_space_size=4096 yourFile.js
 c.queue({
-    uri:'http://www1.bloomingdales.com/shop/sale?id=3977&cm_sp=NAVIGATION-_-TOP_NAV-_-SALE-n-n',
-    proxy:"http://127.0.0.1:5050"
+    uri:'http://www1.bloomingdales.com/shop/sale?id=3977&cm_sp=NAVIGATION-_-TOP_NAV-_-SALE-n-n'
 });
 
 c.on('drain',function(){
